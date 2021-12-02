@@ -1,16 +1,28 @@
 pipeline {
-  agent { label "linux" }
-  environment {
-    AWS_DEFAULT_REGION="us-east-1"
+ agent any
+ stages {
+  stage('Build') {
+   steps {
+    echo 'Building..'
+   }
   }
-  stages {
-    stage('Hello') {
-      steps {
-        sh '''
+  stage('Test') {
+   steps {
+    echo 'Testing..'
+   }
+  }
+  stage('Deploy') {
+   steps {
+    sh '''
           aws --version
           aws ec2 describe-instances
         '''
-      }
-    }
+   }
   }
+  stage('slack notification') {
+   steps {
+    slackSend channel: 'moeez_testing', message: "Please Find status of Job status- ${currentBuild.currentResult} Build Name-${env.JOB_NAME} Build Number-${env.BUILD_NUMBER} Build URL-${env.BUILD_URL}"
+   }   
+  }
+ }
 }
